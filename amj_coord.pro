@@ -287,7 +287,7 @@ im_corr = im/M_corr
 
 im_corr_ind = where( (R gt di*sin(seg_const.deg_lim*!dtor)) and finite(im_corr), count )
 
-if count NE 0 then im_corr[im_corr_ind] = 0.0 
+if count NE 0 then im_corr[im_corr_ind] = !values.f_nan 
 ;
 ;Corrected image Display------------------------------------------------
 ;
@@ -337,7 +337,7 @@ Atmp = crosspn(P,Q)
 
 mgnt_ar = reform(sqrt(Atmp[0,*]^2.0 + Atmp[1,*]^2.0 + Atmp[2,*]^2.0)*6.955e10*6.955e10/8.0, sz[1], sz[2])
 ind_npf = where(R gt di)
-mgnt_ar(ind_npf) = 0.0
+mgnt_ar(ind_npf) = !values.f_nan
 
 if keyword_set(display) then begin
     loadct,0,/silent
@@ -368,7 +368,7 @@ if keyword_set(display) then begin
     loadct,0,/silent
     if not keyword_set(ps) then window,3,xsize=display_xsize,ysize=display_ysize,retain=2 
     plot,[1,1],/nodata,xstyle=5,ystyle=5
-    tv,bytscl(congrid(mgnt_flx,display_xsize,display_ysize),min=min(mgnt_flx/10.0,/nan),max=max(mgnt_flx/10.0,/nan))
+    tv,bytscl(congrid(mgnt_flux_raw, display_xsize,display_ysize),min=min(mgnt_flux_raw/10.0,/nan),max=max(mgnt_flux_raw/10.0,/nan))
     loadct, 13
     plots, (N_pl[0,*] + hfx)*display_zoom, (N_pl[1,*] + hfy)*display_zoom ,color=200,/device,thick=3
     plots, (E_pl[0,*] + hfx)*display_zoom, (E_pl[1,*] + hfy)*display_zoom ,color=200*3/6,/device,thick=3
@@ -378,6 +378,5 @@ if keyword_set(display) then begin
 endif
 
 CRD_out = {im_raw: imgs0, im_crr: im, hdr:hdr_in, mgnt_ar:mgnt_ar, mgnt_flux_raw: mgnt_flux_raw, mgnt_flux_corr: mgnt_flux_corr, Xar:Xar, Yar:Yar, Zar:Zar, Lath:Lath, Lonh:Lonh}
-
 return
 end

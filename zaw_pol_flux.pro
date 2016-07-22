@@ -193,7 +193,7 @@ REPEAT begin
         print, 'Northern hemisphere no polarity mixture' 
         n_swt = 3.0
     endif    
-    if ( float(vnpc_pxn)/float(npc_pxn) le inv_px_tol or vpc_pxindn[0] eq -1 ) then begin
+    if ( float(vnpc_pxn)/float(npc_pxn) le inv_px_tol or vpc_pxindn[0] eq - 1 ) then begin
         print, 'Northen hemisphere has more than ' + string((1.0-inv_px_tol)*100.0) + '% invalid pixels' 
         n_swt = 2.0
     endif
@@ -226,6 +226,14 @@ REPEAT begin
         max_pxflux_n = max(abs( CRD.mgnt_flux_corr(vpc_pxindn) ), /nan)         ;Maximum pixel flux - corrected
         max_pxf_n = max( CRD.im_raw(vpc_pxindn) ,/nan)                          ;Maximum uncorrected pixel field
         max_pxfc_n =  max( CRD.im_crr(vpc_pxindn) ,/nan)                        ;Maximum corrected pixel field
+        if (unsfluxc_n eq 0.0) then begin
+            unsfluxc_n = !values.f_nan
+            sfluxc_n = !values.f_nan
+            posfluxc_n = !values.f_nan
+            negfluxc_n = !values.f_nan
+            max_pxflux_n = !values.f_nan
+            n_swt = 4                   ;for corrected field zero identifier
+        endif
     endelse
 
 
@@ -276,25 +284,21 @@ REPEAT begin
         max_pxflux_s = max(abs( CRD.mgnt_flux_corr(vpc_pxinds) ), /nan)         ;Maximum pixel flux        - corrected
         max_pxf_s = max( CRD.im_raw(vpc_pxinds) ,/nan)                          ;Maximum uncorrected pixel field
         max_pxfc_s =  max( CRD.im_crr(vpc_pxinds) ,/nan)                        ;Maximum corrected pixel field 
+        if (unsfluxc_s eq 0.0) then begin
+            unsfluxc_s = !values.f_nan
+            sfluxc_s =   !values.f_nan
+            posfluxc_s = !values.f_nan
+            negfluxc_s = !values.f_nan
+            max_pxflux_s = !values.f_nan
+            s_swt = 4                   ;for corrected field zero identifier
+        endif
                 
     endelse
     tmp_PF = {pf_day, mdi_i, date, intf_n, intfc_n, unsflux_n, unsfluxc_n, sflux_n, sfluxc_n, posfluxc_n, negfluxc_n, vnpc_pxn, visarea_n, max_pxflux_n, max_pxf_n, max_pxfc_n, n_swt, intf_s, intfc_s, unsflux_s, unsfluxc_s, sflux_s, sfluxc_s, posfluxc_s, negfluxc_s, vnpc_pxs, visarea_s, max_pxflux_s, max_pxf_s, max_pxfc_s, s_swt}
-    ;if (n_elements(PF_data) eq 1) then begin
-    ;    if (PF_data.mdi_i eq 0) then PF_data = tmp_PF ;To eliminate zero row of initilization
-    ;endif else begin 
-        PF_data = [PF_data, tmp_PF] 
-    ;endelse
+    PF_data = [PF_data, tmp_PF] 
     write_csv, filename, PF_data, HEADER = head
-    ;stop
 ENDREP UNTIL (mdi_i gt mdi_f)
 
-;first = 0
-;last = N_Elements(array)-1
-;CASE index OF
-   ; first: array = array[1:*]
-  ;  last: array = array[first:last-1]
- ;   ELSE: array = [ array[first:index-1], array[index+1:last] ]
-;ENDCASE
 
 filename = string('PF_data' + start_date + '_' + end_date + '.csv')
 head = ['mdi_i','date','intf_n', 'intfc_n', 'unsflux_n', 'unsfluxc_n', 'sflux_n', 'sfluxc_n', 'posfluxc_n', 'negfluxc_n', 'vnpc_pxn', 'visarea_n', 'max_pxflux_n', 'max_pxf_n', 'max_pxfc_n', 'n_swt', $
